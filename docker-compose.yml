@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:5.7  # Versão do MySQL
+    container_name: mysql_container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root   # Define a senha do usuário root
+      MYSQL_DATABASE: payment_api  # Cria o banco automaticamente
+      MYSQL_USER: eduardo         # Cria o usuário "eduardo"
+      MYSQL_PASSWORD: password    # Define a senha do usuário "eduardo"
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
