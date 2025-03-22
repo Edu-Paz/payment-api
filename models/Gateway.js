@@ -13,11 +13,6 @@ const Gateway = sequelize.define(
             type: DataTypes.STRING,
             allowNull: false,
         },
-        email: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            unique: true,
-        },
         is_active: {
             type: DataTypes.BOOLEAN,
             allowNull: false,

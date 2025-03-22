@@ -5,6 +5,6 @@ import authMiddleware from "../middlewares/authMiddleware.js";
 const router = express.Router();
 
 //Rota de compra (requer autenticação)
-router.post("/purchase", authMiddleware, purchaseController.purchase);
+router.post("/purchase", authMiddleware, purchaseController.pay);
 
 export default router;

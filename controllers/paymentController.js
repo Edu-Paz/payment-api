@@ -1,4 +1,4 @@
-import { Gateway } from "../models/index.js";
+import { Gateway, Transaction } from "../models/index.js";
 import axios from "axios";
 
 const paymentController = {
@@ -50,10 +50,20 @@ const paymentController = {
                     headers,
                 });
 
-                if (response.status === 200) {
+                if (response.status === 200 && response.data.id) {
+                    const transaction = await Transaction.create({
+                        client: name,
+                        gateway: gateway.name,
+                        external_id: response.data.id,
+                        status: "APPROVED",
+                        amount,
+                        card_last_numbers: cardNumber.slice(-4),
+                      });
+
                     return res.json({
                         message: "Pagamento realizado com sucesso",
                         transactionId: response.data.id,
+                        transaction,
                     });
                 }
             }

@@ -1,7 +1,7 @@
 import { Product, Transaction } from "../models/index.js";
 
 export default {
-    async purchase(req, res) {
+    async pay(req, res) {
         try {
             const { productId } = req.body;
             const userId = req.userId; // Pegamos do token JWT
