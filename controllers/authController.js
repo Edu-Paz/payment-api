@@ -1,6 +1,5 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-import authConfig from "../config/auth.js";
 import { User } from "../models/index.js";
 
 export default {
@@ -21,17 +20,14 @@ export default {
                 password,
                 user.password
             );
-            console.log("****************", user.password, password);
             if (!isPasswordValid) {
                 return res.status(401).json({ error: "Senha incorreta!" });
             }
 
             const token = jwt.sign(
-                { id: user.id, role: user.role },
-                authConfig.secret,
-                {
-                    expiresIn: authConfig.expiresIn,
-                }
+                { id: user.id },
+                process.env.JWT_SECRET,
+                { expiresIn: "1d" }
             );
 
             return res.json({
@@ -41,10 +37,10 @@ export default {
                     email: user.email,
                     role: user.role,
                 },
-                token,
+                token
             });
         } catch (error) {
-            return res.status(500).json({ error: "Erro interno do servidor" });
+            return res.status(500).json({ error: "Erro no login" });
         }
-    },
+    }
 };

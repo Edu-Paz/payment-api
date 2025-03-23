@@ -21,7 +21,7 @@ module.exports = {
                 type: Sequelize.STRING,
             },
             status: {
-                type: Sequelize.ENUM("pending", "approved", "failed"),
+                type: Sequelize.ENUM("pending", "approved", "failed", "refunded", "chargeback"),
                 allowNull: false,
             },
             amount: {
