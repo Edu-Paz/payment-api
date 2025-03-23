@@ -1,8 +1,10 @@
 import { Transaction } from "../models/index.js";  // Importa o modelo de Transação
+import axios from "axios";
+import { GATEWAY_URLS } from "../config/gateways.js";
 
 const transactionController = {
     // Listar todas as transações
-    listTransactions: async (req, res) => {
+    async list(req, res) {
         try {
             const transactions = await Transaction.findAll();
             return res.status(200).json(transactions);
@@ -14,17 +16,12 @@ const transactionController = {
         }
     },
 
-    // Consultar uma transação específica
-    getTransactionStatus: async (req, res) => {
-        const { id } = req.params;  // ID da transação como parâmetro
-
+    // Detalhes de uma transação
+    async getById(req, res) {
         try {
-            const transaction = await Transaction.findByPk(id);
-
+            const transaction = await Transaction.findByPk(req.params.id);
             if (!transaction) {
-                return res.status(404).json({
-                    error: "Transação não encontrada",
-                });
+                return res.status(404).json({ error: "Transação não encontrada" });
             }
 
             return res.status(200).json(transaction);
@@ -36,31 +33,49 @@ const transactionController = {
         }
     },
 
-    // Realizar chargeback (reembolso) - apenas atualiza o status da transação
-    chargeback: async (req, res) => {
-        const { id } = req.params;  // ID da transação como parâmetro
-
+    // Realizar chargeback/reembolso
+    async chargeback(req, res) {
         try {
+            const { id } = req.params;
             const transaction = await Transaction.findByPk(id);
 
             if (!transaction) {
-                return res.status(404).json({
-                    error: "Transação não encontrada",
-                });
+                return res.status(404).json({ error: "Transação não encontrada" });
             }
 
-            // Atualizar o status da transação para "CHARGEBACK"
-            transaction.status = "CHARGEBACK";  // Indicando que a transação foi revertida
-            await transaction.save();
+            // Tenta realizar o chargeback no gateway apropriado
+            try {
+                if (transaction.gateway === "gateway1") {
+                    const url = GATEWAY_URLS.gateway1.base + 
+                              GATEWAY_URLS.gateway1.endpoints.chargeback(transaction.external_id);
+                    await axios.post(url);
+                } else {
+                    const url = GATEWAY_URLS.gateway2.base + 
+                              GATEWAY_URLS.gateway2.endpoints.chargeback;
+                    await axios.post(url, { id: transaction.external_id });
+                }
 
-            return res.status(200).json({
-                message: "Transação revertida (chargeback) com sucesso",
-                transaction,
-            });
+                // Atualiza o status da transação
+                transaction.status = "refunded";
+                await transaction.save();
+
+                return res.json({
+                    success: true,
+                    message: "Reembolso realizado com sucesso",
+                    transaction
+                });
+            } catch (error) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Erro ao processar reembolso no gateway",
+                    error: error.message
+                });
+            }
         } catch (error) {
             return res.status(500).json({
-                error: "Erro ao processar chargeback",
-                details: error.message,
+                success: false,
+                message: "Erro ao processar reembolso",
+                error: error.message
             });
         }
     },

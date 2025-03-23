@@ -21,7 +21,7 @@ const Transaction = sequelize.define(
             type: DataTypes.STRING,
         },
         status: {
-            type: DataTypes.ENUM("pending", "approved", "failed"),
+            type: DataTypes.ENUM("pending", "approved", "failed", "refunded", "chargeback"),
             allowNull: false,
         },
         amount: {

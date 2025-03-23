@@ -1,11 +1,15 @@
-import { Router } from "express";
-import transactionController from "../controllers/transactionController.js";  // Importa o controlador de transações
+import express from "express";
+import transactionController from "../controllers/transactionController.js";
 
-const router = Router();
+const router = express.Router();
 
-// Definindo as rotas para as transações
-router.get("/", transactionController.listTransactions);    // Listar todas as transações
-router.get("/:id", transactionController.getTransactionStatus);  // Consultar uma transação específica
-router.post("/:id/chargeback", transactionController.chargeback);  // Processar chargeback/reembolso
+// Listar todas as transações
+router.get("/", transactionController.list);
+
+// Listar uma transação por ID
+router.get("/:id", transactionController.getById);
+
+// Realizar chargeback/reembolso
+router.post("/:id/chargeback", transactionController.chargeback);
 
 export default router;
